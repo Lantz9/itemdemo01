@@ -13,14 +13,14 @@
 
   export default {
     name: "HomeSwiper",
-    props: {
-      banners: {
-        type: Array,
-        default() {
-          return []
-        }
-      }
-    },
+		props:{
+			banners:{
+				type:Array,
+				default(){
+					return []
+				}
+			}
+		},
     components: {
       Swiper,
       SwiperItem
