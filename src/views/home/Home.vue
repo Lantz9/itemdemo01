@@ -1,7 +1,7 @@
 <template>
 	<div id="home">
 		<nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-		<scroll class="content">
+		<scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
 			<home-swiper :banners='banners'/>
 			<recommend-view :recommends="recommends"></recommend-view>
 			<feature-view></feature-view>
@@ -11,8 +11,8 @@
 			 ></tab-control>
 			<good-list :goods="showGoods"></good-list>
 		</scroll>
+		<back-top @click.native="backClick" v-show="isShow"></back-top>
 		
-
 		
 	</div>
 </template>
@@ -27,6 +27,7 @@
 	import TabControl from'components/content/tabControl/TabControl'
 	import GoodList from 'components/content/goods/GoodsList'
 	import Scroll from 'components/common/scroll/Scroll'
+	import BackTop from 'components/content/backTop/BackTop'
 	
 	
 	import { getHomeMultidata, getHomeGoods } from "network/home"
@@ -43,7 +44,8 @@
 			NavBar,
 			TabControl,
 			GoodList,
-			Scroll
+			Scroll,
+			BackTop
 			
 		},
 		data(){
@@ -56,7 +58,8 @@
 					'new':{page:0,list:[]},
 					'sell':{page:0,list:[]},
 				},
-				currentType:'pop'
+				currentType:'pop',
+				isShow:false
 			}
 		},
 		
@@ -88,7 +91,15 @@
 					}
 				
 				},
-			
+				backClick(){
+					console.log('点击')
+					this.$refs.scroll.scrollTo(0,0)
+				},
+				contentScroll(position){
+					// console.log(position)
+					this.isShow = -(position.y)>1500
+				},
+				
 			getHomeMultidata(){
 				getHomeMultidata().then((res)=>{
 					// console.log(res);
@@ -110,8 +121,9 @@
 	
 <style scoped>
 	#home{
-		/* padding-top: 44px; */
+		padding-top: 44px;
 		height: 100vh;
+		position: relative;
 	}
 	.home-nav{
 		background-color:var(--color-tint);
@@ -129,9 +141,16 @@
 		
 	}
 	.content{
+		/* height: 300px; */
+		overflow: hidden;
+		position: absolute;
+		top: 44px;
+		bottom: 49px;
+	}
+	/* .content{
 		
-		height:476px;
+		height:calc(100%-93px);
 		overflow: hidden;
 		margin-top: 44px;
-	}
+	} */
 </style>

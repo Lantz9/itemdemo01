@@ -1,4 +1,5 @@
-# supermall 用于保存进度
+# supermall 用于保存进度,11月22,169p
+# 除商品跳转图片，主页已完成
 
 ## Project setup
 ```
