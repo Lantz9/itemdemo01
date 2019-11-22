@@ -1,7 +1,9 @@
 <template>
 	<div id="home">
 		<nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-		<scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
+		<scroll class="content" ref="scroll"
+			:pull-up-load="true" @pullingUp="loadMore"
+		 :probe-type="3" @scroll="contentScroll">
 			<home-swiper :banners='banners'/>
 			<recommend-view :recommends="recommends"></recommend-view>
 			<feature-view></feature-view>
@@ -70,6 +72,12 @@
 			this.getHomeGoods('pop')
 			this.getHomeGoods('new')
 			this.getHomeGoods('sell')
+			
+			//3.监听事件
+			this.$bus.$on('itemImgLoad',()=>{
+				// console.log('自定义$bus')
+				this.$refs.scroll.scroll.refresh()
+			})
 		},
 		computed:{
 			showGoods(){
@@ -92,29 +100,35 @@
 				
 				},
 				backClick(){
-					console.log('点击')
+					// console.log('点击')
 					this.$refs.scroll.scrollTo(0,0)
 				},
 				contentScroll(position){
 					// console.log(position)
 					this.isShow = -(position.y)>1500
 				},
-				
-			getHomeMultidata(){
-				getHomeMultidata().then((res)=>{
-					// console.log(res);
-					// this.results=res;
-					this.banners = res.data.banner.list;
-					this.recommends = res.data.recommend.list;
-				})
-			},
-			getHomeGoods(type){
-				const page = this.goods[type].page + 1
-				getHomeGoods(type, page).then(res =>{
-					this.goods[type].list.push(...res.data.list)
-					this.goods[type].page +=1
-				})
-			}
+				loadMore(){
+					console.log('正在加载中。。。')
+					this.getHomeGoods(this.currentType)
+				},
+				getHomeMultidata(){
+					getHomeMultidata().then((res)=>{
+						// console.log(res);
+						// this.results=res;
+						this.banners = res.data.banner.list;
+						this.recommends = res.data.recommend.list;
+					})
+				},
+				getHomeGoods(type){
+					const page = this.goods[type].page + 1
+					getHomeGoods(type, page).then(res =>{
+						this.goods[type].list.push(...res.data.list)
+						this.goods[type].page +=1
+						//解决只完成一次上拉加载
+						this.$refs.scroll.scroll.finishPullUp()
+					})
+				}
+					
 		}
 	}
 </script>
