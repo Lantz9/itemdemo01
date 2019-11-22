@@ -18,7 +18,7 @@
 	.nav-bar{
 		display: flex;
 		line-height:44px;
-		font-size: 1.5625rem;
+		font-size: 20px;
 		height: 44px;
 		text-align: center;
 		box-shadow: 0 1px 1px rgba(100,100,100,.1);
