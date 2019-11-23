@@ -24,7 +24,7 @@
 	},
 	methods:{
 		imageLoad(){
-			// console.log('图片加载')
+			 // console.log('图片加载')
 			this.$bus.$emit('itemImgLoad')
 		}
 	}

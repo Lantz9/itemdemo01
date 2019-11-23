@@ -33,6 +33,7 @@
 	
 	
 	import { getHomeMultidata, getHomeGoods } from "network/home"
+	import {debounce} from "common/utils"
 	
 	
 	export default{
@@ -74,10 +75,19 @@
 			this.getHomeGoods('sell')
 			
 			//3.监听事件
+			
+		},
+		mounted(){
+			
+			const refresh =debounce(this.$refs.scroll.refresh,100)
+			
+			//////
 			this.$bus.$on('itemImgLoad',()=>{
 				// console.log('自定义$bus')
-				this.$refs.scroll.scroll.refresh()
+				refresh()
+				
 			})
+			//////
 		},
 		computed:{
 			showGoods(){
@@ -85,6 +95,8 @@
 			}
 		},
 		methods:{
+			// 事件监听
+				
 				tabClick(index){
 					switch(index){
 						case 0:
