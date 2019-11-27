@@ -1,15 +1,24 @@
 <template>
 	<div id="home">
 		<nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+		<tab-control class="tab-control"
+				:titles="['流行','新款', '精选']"
+				@tabClick="tabClick"
+				ref="tabControl1"
+				
+				v-show="isTabFixed"
+		 ></tab-control>
 		<scroll class="content" ref="scroll"
 			:pull-up-load="true" @pullingUp="loadMore"
 		 :probe-type="3" @scroll="contentScroll">
-			<home-swiper :banners='banners'/>
+			<home-swiper :banners='banners' @swiperImageLoad="swiperImageLoad"/>
 			<recommend-view :recommends="recommends"></recommend-view>
 			<feature-view></feature-view>
 			<tab-control class="tab-control"
 					:titles="['流行','新款', '精选']"
 					@tabClick="tabClick"
+					ref="tabControl2"
+					:class="{fixed:isTabFixed}"
 			 ></tab-control>
 			<good-list :goods="showGoods"></good-list>
 		</scroll>
@@ -62,7 +71,11 @@
 					'sell':{page:0,list:[]},
 				},
 				currentType:'pop',
-				isShow:false
+				isShow:false,
+				tabOffsetTop:646,
+				isTabFixed:false,
+				saveY:0,
+				itemImgListener:null
 			}
 		},
 		
@@ -74,25 +87,42 @@
 			this.getHomeGoods('new')
 			this.getHomeGoods('sell')
 			
-			//3.监听事件
+			//3.赋值
+			
 			
 		},
 		mounted(){
 			
 			const refresh =debounce(this.$refs.scroll.refresh,100)
 			
-			//////
-			this.$bus.$on('itemImgLoad',()=>{
+			//
+			this.itemImgListener=()=>{
 				// console.log('自定义$bus')
 				refresh()
 				
-			})
-			//////
+			}
+			this.$bus.$on('itemImgLoad',this.itemImgListener)
+			
 		},
 		computed:{
 			showGoods(){
 				return this.goods[this.currentType].list
 			}
+		},
+		activated(){
+			
+			this.$refs.scroll.scroll.refresh()
+			this.$refs.scroll.scrollTo(0,this.saveY,0)
+// 			console.log(this.saveY)
+// 			console.log('---')
+// 			console.log(this.$refs.scroll.scroll.y)
+		},
+		deactivated(){
+			this.saveY =this.$refs.scroll.scroll.y
+			// console.log(this.saveY)
+			// console.log(this.$refs.scroll.scroll.y)
+			//取消全局事件监听
+			this.$bus
 		},
 		methods:{
 			// 事件监听
@@ -109,7 +139,8 @@
 						this.currentType='sell';
 						break;
 					}
-				
+					this.$refs.tabControl1.currentIndex = index;
+					this.$refs.tabControl2.currentIndex = index;
 				},
 				backClick(){
 					// console.log('点击')
@@ -118,9 +149,13 @@
 				contentScroll(position){
 					// console.log(position)
 					this.isShow = -(position.y)>1500
+					
+					//1.吸顶
+					this.isTabFixed = -(position.y)>this.tabOffsetTop
+					
 				},
 				loadMore(){
-					console.log('正在加载中。。。')
+					// console.log('下一页正在加载中。。。')
 					this.getHomeGoods(this.currentType)
 				},
 				getHomeMultidata(){
@@ -139,8 +174,12 @@
 						//解决只完成一次上拉加载
 						this.$refs.scroll.scroll.finishPullUp()
 					})
-				}
-					
+				},
+					//.offsetTop
+						swiperImageLoad(){
+							this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
+							// console.log(this.$refs.tabControl2.$el.offsetTop)
+				},
 		}
 	}
 </script>
@@ -172,6 +211,12 @@
 		position: absolute;
 		top: 44px;
 		bottom: 49px;
+	}
+	.tab-control2{
+		position: fixed;
+		left:0;
+		right:0;
+		top:44px;
 	}
 	/* .content{
 		

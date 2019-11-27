@@ -51,11 +51,11 @@
 			
 		},
 		methods:{
-			scrollTo(x,y,time=666){
+			scrollTo(x,y,time=200){
 				this.scroll&&this.scroll.scrollTo&&this.scroll.scrollTo(x,y,time)
 			},
 			refresh(){
-				console.log('--')
+				// console.log('--')
 				this.scroll&&this.scroll.refresh()
 			}
 		}
