@@ -32,6 +32,8 @@
 			imgLoad(){
 				if(++this.counter === this.imagesLength){
 					this.$emit('imageLoad')
+					
+					
 				}
 			}
 		},

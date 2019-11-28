@@ -35,6 +35,7 @@
 			
 			titleClick(index){
 					this.currentIndex = index
+					this.$emit('titleClick',index)
 			},
 			
 			backClick(){

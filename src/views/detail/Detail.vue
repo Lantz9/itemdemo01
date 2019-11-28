@@ -1,19 +1,28 @@
 <template>
 	<div id="detail">
-		<detail-nav-bar class="detail-nav"/>
-		<scroll class="content" ref="scroll">
+		<detail-nav-bar class="detail-nav" @titleClick="titleClick" ref="nav"/>
+		<scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
 			<detail-swiper :topImages="topImages"></detail-swiper>
 			<detail-base-info :goods="goods"></detail-base-info>
 			<detail-shop-info :shop="shop"></detail-shop-info>
 			<detail-goods-info :detail-info="detailInfo"></detail-goods-info>
-			<detail-param-info :param-info="paramInfo"></detail-param-info>
-			<detail-comment-info :comment-info="commentInfo"></detail-comment-info>
-			<good-list :goods="recommends"></good-list>
-			<br />
-			<br />
-			<br />
+			<detail-param-info :param-info="paramInfo" ref="params"></detail-param-info>
+			<detail-comment-info :comment-info="commentInfo" ref="comment"></detail-comment-info>
+			<good-list :goods="recommends" ref="recommend"></good-list>
+			<!-- 空格代表填充 -->
+			<div>
+				<br />
+				<br />
+				<br />
+				<br />
+				<br />
+				<br />
+				<br />
+				<br />
+			</div>
 			
 		</scroll>
+		<detail-bottom-bar class="bottom-bar"></detail-bottom-bar>
 	</div>
 	
 </template>
@@ -30,6 +39,7 @@
 	import {debounce} from "common/utils"
 	import {itemListenerMixin} from 'common/mixin'
 	import GoodList from 'components/content/goods/GoodsList'
+	import DetailBottomBar from './childComps/DetailBottomBar'
 	
 	import Scroll from 'components/common/scroll/Scroll'
 	export default{
@@ -44,6 +54,7 @@
 			DetailCommentInfo,
 			GoodList,
 			Scroll,
+			DetailBottomBar
 			
 		},
 		mixins:[itemListenerMixin],
@@ -63,7 +74,9 @@
 				paramInfo:{},
 				commentInfo:{},
 				recommends:[],
-				itemImgListener:null
+				itemImgListener:null,
+				themeTopYs:[],
+				currentIndex:0
 				
 			}
 		},
@@ -95,6 +108,10 @@
 				if(data.rate.cRate !== 0){
 					this.commentInfo = data.rate.list[0]
 				}
+			
+				
+			
+				
 			})
 			
 			//请求推荐数据
@@ -103,18 +120,67 @@
 				this.recommends = res.data.list
 				
 			})
+			this.getThemeTopY = debounce(()=>{
+				this.themeTopYs=[]
+				this.themeTopYs.push(0)
+				this.themeTopYs.push(this.$refs.params.$el.offsetTop-50)
+				this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+				this.themeTopYs.push(this.$refs.recommend.$el.offsetTop-30)
 			
+			})
+			
+	
 		},
 		mounted(){
+		
 		},
+		updated() {
+			this.getThemeTopY()
+		},
+		
 		destroyed(){
 			this.$bus.$off('itemImgLoad',this.itemImgListener)
 		},
 		methods:{
 			imageLoad(){
-				this.$refs.scroll.refresh()
-			}
+				// this.newRefresh()
+				// this.$refs.scroll.refresh()
+				// console.log('111')
+				
+			},
+		
+			
+			titleClick(index){
+				// console.log(index);
+				this.themeTopYs=[]
+				this.themeTopYs.push(0)
+				this.themeTopYs.push(this.$refs.params.$el.offsetTop-50)
+				this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+				this.themeTopYs.push(this.$refs.recommend.$el.offsetTop-30)
+				
+				this.$refs.scroll.scrollTo(0,-this.themeTopYs[index],200)
+			},
+			contentScroll(position){
+				// console.log(position)
+				
+				const positionY = -position.y;
+				let length = this.themeTopYs.length
+				for(let i = 0;i<length;i++){
+// 					if(positionY>this.themeTopYs[i]&&positionY<this.themeTopYs[i+1]){
+// 						console.log(i)
+						if(this.currentIndex !== i &&((i<length-1 &&positionY>=this.themeTopYs[i]&&positionY<this.themeTopYs[i+1]) || 
+						(i===length-1&&positionY>=this.themeTopYs[i]))){
+							this.currentIndex = i;
+							console.log(this.currentIndex)
+							this.$refs.nav.currentIndex = this.currentIndex
+						}
+					}
+					this.getThemeTopY()
+				}
+			
+			
 		}
+		
 	}
 </script>
 
@@ -133,6 +199,6 @@
 		position: relative;
 		z-index: 9;
 		background-color: #fff;
-		
 	}
+	
 </style>
