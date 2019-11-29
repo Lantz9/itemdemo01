@@ -15,15 +15,48 @@
 	    </div>
 	  </div>
 	  <div class="bar-item bar-right">
-	    <div class="cart" >加入购物车</div>
+	    <div class="cart" @click="addToCart">加入购物车</div>
 	    <div class="buy">购买</div>
 	  </div>
+		
+		<toast message="加入购物车成功" v-show="show"></toast>
 	</div>
+	
+
+
+	
 </template>
 
 <script>
+	import Toast from 'components/common/toast/Toast'
+	
 	export default{
-		name:"DetailBottomBar"
+		name:"DetailBottomBar",
+		data(){
+			return{
+				show:false
+			}
+		},
+		props:{
+			message:{
+				type:String,
+				default:'',
+				},
+			
+			},
+		components:{
+			Toast
+		},
+		methods:{
+			addToCart(){
+				this.show = true;
+				setTimeout(()=>{
+					this.show = false
+				},2000)
+				console.log('加入购物车成功')
+				this.$emit('addCart')
+			}
+		}
 	}
 </script>
 

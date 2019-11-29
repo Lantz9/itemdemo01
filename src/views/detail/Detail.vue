@@ -2,6 +2,7 @@
 	<div id="detail">
 		<detail-nav-bar class="detail-nav" @titleClick="titleClick" ref="nav"/>
 		<scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
+			
 			<detail-swiper :topImages="topImages"></detail-swiper>
 			<detail-base-info :goods="goods"></detail-base-info>
 			<detail-shop-info :shop="shop"></detail-shop-info>
@@ -22,7 +23,8 @@
 			</div>
 			
 		</scroll>
-		<detail-bottom-bar class="bottom-bar"></detail-bottom-bar>
+		<detail-bottom-bar class="bottom-bar" @addCart="addToCart" ></detail-bottom-bar>
+		
 	</div>
 	
 </template>
@@ -42,6 +44,8 @@
 	import DetailBottomBar from './childComps/DetailBottomBar'
 	
 	import Scroll from 'components/common/scroll/Scroll'
+	
+	
 	export default{
 		name:"Detail",
 		components:{
@@ -54,7 +58,8 @@
 			DetailCommentInfo,
 			GoodList,
 			Scroll,
-			DetailBottomBar
+			DetailBottomBar,
+			
 			
 		},
 		mixins:[itemListenerMixin],
@@ -76,7 +81,9 @@
 				recommends:[],
 				itemImgListener:null,
 				themeTopYs:[],
-				currentIndex:0
+				currentIndex:0,
+				message:'奥术大师多'
+				
 				
 			}
 		},
@@ -148,7 +155,20 @@
 				// console.log('111')
 				
 			},
-		
+			 addToCart(){
+				 //获取购物车信息
+				 const product={}
+				 product.image = this.topImages[0]
+				 product.title = this.goods.title
+				 product.desc = this.goods.desc
+				 product.price = this.goods.realPrice
+				 product.iid = this.iid
+				 
+				 //添加到购物车
+				 this.$store.commit('addCart',product)
+				 // this.$store.dispatch('addCart',product)
+				 
+			 }, 
 			
 			titleClick(index){
 				// console.log(index);
